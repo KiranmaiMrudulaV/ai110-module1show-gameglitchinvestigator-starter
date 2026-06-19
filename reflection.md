@@ -12,12 +12,24 @@ Answer each question in 3 to 5 sentences. Be specific and honest about what actu
 
 Document at least 3 bugs you found. Add rows as needed.
 
+i. Show hint is not working properly
+
 | Input | Expected Behavior | Actual Behavior | Console Output / Error |
 |-------|-------------------|-----------------|------------------------|
-| | | | |
-| | | | |
-| | | | |
+|  80   | go lower          |  go higher      |     📈 Go HIGHER!     |
+|  60   | go higher         |  go lower       |     📉 Go LOWER!      |
 
+ii. New game button is not working
+
+| Input             | Expected Behavior | Actual Behavior | Console Output / Error |
+|-------------------|-------------------|-----------------|------------------------|
+|  click New Game   | to clear the Enter guess field and start new game with score reset|  It is displaying the existing guess without resetting the score and not letting me to play     |    You already won. Start a new game to play again.    |
+
+iii. click on enter with show hint checked not displaying the hint.
+
+| Input | Expected Behavior | Actual Behavior | Console Output / Error |
+|-------|-------------------|-----------------|------------------------|
+|  Enter with hint checked| to show hint      |  No hint displayed     |     None     |
 ---
 
 ## 2. How did you use AI as a teammate?
