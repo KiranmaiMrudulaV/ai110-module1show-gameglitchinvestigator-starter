@@ -104,6 +104,9 @@ if "status" not in st.session_state:
 if "history" not in st.session_state:
     st.session_state.history = []
 
+if "game_reset_count" not in st.session_state:
+    st.session_state.game_reset_count = 0
+
 st.subheader("Make a guess")
 
 st.info(
@@ -111,7 +114,7 @@ st.info(
     f"Attempts left: {attempt_limit - st.session_state.attempts}"
 )
 
-with st.expander("Developer Debug Info"):
+with st.expander("Developer Debug Info", expanded=False):
     st.write("Secret:", st.session_state.secret)
     st.write("Attempts:", st.session_state.attempts)
     st.write("Score:", st.session_state.score)
@@ -120,7 +123,7 @@ with st.expander("Developer Debug Info"):
 
 raw_guess = st.text_input(
     "Enter your guess:",
-    key=f"guess_input_{difficulty}"
+    key=f"guess_input_{difficulty}_{st.session_state.game_reset_count}"
 )
 
 col1, col2, col3 = st.columns(3)
@@ -136,6 +139,7 @@ if new_game:
     st.session_state.score = 0
     st.session_state.status = "playing"
     st.session_state.history = []
+    st.session_state.game_reset_count += 1
     low, high = get_range_for_difficulty(difficulty)
     st.session_state.secret = random.randint(low, high)
     st.success("New game started.")
