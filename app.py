@@ -7,7 +7,7 @@ def get_range_for_difficulty(difficulty: str):
     if difficulty == "Normal":
         return 1, 100
     if difficulty == "Hard":
-        return 1, 50
+        return 1, 500
     return 1, 100
 
 
@@ -162,6 +162,9 @@ if submit:
         st.error(err)
     else:
         st.session_state.history.append(guess_int)
+
+        if guess_int < low or guess_int > high:
+            st.warning(f"⚠️ Your guess {guess_int} is outside the valid range ({low}-{high}) for {difficulty} difficulty!")
 
         secret = st.session_state.secret
 
