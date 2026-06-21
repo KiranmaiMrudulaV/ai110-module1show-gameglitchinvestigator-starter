@@ -72,15 +72,25 @@ The info banner was hardcoded to `"Guess a number between 1 and 100"`. Switching
 ```
 ============================= test session starts =============================
 platform win32 -- Python 3.14.0, pytest-9.0.3, pluggy-1.6.0
-collected 3 items
+collected 6 items
 
-tests/test_game_logic.py::test_winning_guess PASSED                      [ 33%]
-tests/test_game_logic.py::test_guess_too_high PASSED                     [ 66%]
-tests/test_game_logic.py::test_guess_too_low PASSED                      [100%]
+tests/test_game_logic.py::test_winning_guess PASSED                      [ 16%]
+tests/test_game_logic.py::test_guess_too_high PASSED                     [ 33%]
+tests/test_game_logic.py::test_guess_too_low PASSED                      [ 50%]
+tests/test_game_logic.py::test_empty_input PASSED                        [ 66%]
+tests/test_game_logic.py::test_non_numeric_input PASSED                  [ 83%]
+tests/test_game_logic.py::test_decimal_input PASSED                      [100%]
 
-============================== 3 passed in 0.06s ==============================
+============================== 6 passed in 0.05s ==============================
 ```
 
 ## 🚀 Stretch Features
 
-- Enhanced UI: added emoji hints (📈 Go HIGHER! / 📉 Go LOWER!), a collapsible Developer Debug Info panel, difficulty-aware ranges displayed in the sidebar, and a score tracker that updates after every valid guess.
+### Enhanced Game UI
+The following UI improvements were added to make the game clearer and more engaging:
+
+- **Emoji-coded hints** — `check_guess` in `logic_utils.py` returns `"📉 Go LOWER!"` or `"📈 Go HIGHER!"` so feedback is instant and visual
+- **Color-coded messages** — `app.py` uses `st.warning` for hints, `st.success` for wins, and `st.error` for losses, giving each outcome a distinct color
+- **Difficulty-aware sidebar** — `get_range_for_difficulty` in `logic_utils.py` drives the range and attempt count displayed in the sidebar, updating automatically when difficulty changes
+- **Score tracker** — `update_score` in `logic_utils.py` calculates and updates the score after every valid guess, displayed live in the Developer Debug Info panel
+- **Collapsible Developer Debug Info** — a `st.expander` in `app.py` shows the secret number, attempt count, score, and guess history without cluttering the main UI
