@@ -110,7 +110,8 @@ if submit:
 
     if not ok:
         st.session_state.history.append(raw_guess)
-        st.error(err)
+        st.session_state.hint_message = None
+        hint_placeholder.error(err)
     else:
         if guess_int < low or guess_int > high:
             st.session_state.history.append(guess_int)
