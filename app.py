@@ -67,6 +67,10 @@ st.info(
     f"Attempts left: {attempt_limit - st.session_state.attempts}"
 )
 
+col_attempts, col_score = st.columns(2)
+col_attempts.metric("Attempts Used", st.session_state.attempts)
+col_score.metric("Score", st.session_state.score)
+
 with st.expander("Developer Debug Info", expanded=False):
     st.write("Secret:", st.session_state.secret)
     st.write("Attempts:", st.session_state.attempts)
