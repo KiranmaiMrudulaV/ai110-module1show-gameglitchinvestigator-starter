@@ -101,6 +101,7 @@ if st.session_state.current_difficulty != difficulty:
     st.session_state.score = 0
     st.session_state.status = "playing"
     st.session_state.history = []
+    st.session_state.hint_message = None
 
 if "attempts" not in st.session_state:
     st.session_state.attempts = 0
@@ -116,6 +117,9 @@ if "history" not in st.session_state:
 
 if "game_reset_count" not in st.session_state:
     st.session_state.game_reset_count = 0
+
+if "hint_message" not in st.session_state:
+    st.session_state.hint_message = None
 
 st.subheader("Make a guess")
 
@@ -133,24 +137,22 @@ with st.expander("Developer Debug Info", expanded=False):
     st.write("Guesses Made:", st.session_state.history)
     st.write("Attempts Left:", attempt_limit - st.session_state.attempts)
 
-raw_guess = st.text_input(
-    "Enter your guess:",
-    key=f"guess_input_{difficulty}_{st.session_state.game_reset_count}"
-)
+show_hint = st.checkbox("Show hint", value=True)
 
-col1, col2, col3 = st.columns(3)
-with col1:
-    submit = st.button("Submit Guess 🚀")
-with col2:
-    new_game = st.button("New Game 🔁")
-with col3:
-    show_hint = st.checkbox("Show hint", value=True)
+with st.form(key="guess_form", clear_on_submit=True):
+    raw_guess = st.text_input("Enter your guess:")
+    submit = st.form_submit_button("Submit Guess 🚀")
+
+hint_placeholder = st.empty()
+
+new_game = st.button("New Game 🔁")
 
 if new_game:
     st.session_state.attempts = 0
     st.session_state.score = 0
     st.session_state.status = "playing"
     st.session_state.history = []
+    st.session_state.hint_message = None
     st.session_state.game_reset_count += 1
     low, high = get_range_for_difficulty(difficulty)
     st.session_state.secret = random.randint(low, high)
@@ -182,8 +184,7 @@ if submit:
 
             outcome, message = check_guess(guess_int, secret)
 
-            if show_hint:
-                st.warning(message)
+            st.session_state.hint_message = message
 
             st.session_state.score = update_score(
                 current_score=st.session_state.score,
@@ -206,6 +207,9 @@ if submit:
                         f"The secret was {st.session_state.secret}. "
                         f"Score: {st.session_state.score}"
                     )
+
+if show_hint and st.session_state.hint_message:
+    hint_placeholder.warning(st.session_state.hint_message)
 
 st.divider()
 st.caption("Built by an AI that claims this code is production-ready.")
