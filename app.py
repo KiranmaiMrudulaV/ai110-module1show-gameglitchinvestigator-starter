@@ -60,6 +60,9 @@ if "game_reset_count" not in st.session_state:
 if "hint_message" not in st.session_state:
     st.session_state.hint_message = None
 
+if "show_balloons" not in st.session_state:
+    st.session_state.show_balloons = False
+
 st.subheader("Make a guess")
 
 st.info(
@@ -70,6 +73,10 @@ st.info(
 col_attempts, col_score = st.columns(2)
 col_attempts.metric("Attempts Used", st.session_state.attempts)
 col_score.metric("Score", st.session_state.score)
+
+if st.session_state.show_balloons:
+    st.balloons()
+    st.session_state.show_balloons = False
 
 with st.expander("Developer Debug Info", expanded=False):
     st.write("Secret:", st.session_state.secret)
@@ -104,9 +111,15 @@ if new_game:
 
 if st.session_state.status != "playing":
     if st.session_state.status == "won":
-        st.success("You already won. Start a new game to play again.")
+        st.success(
+            f"You won! The secret was {st.session_state.secret}. "
+            f"Final score: {st.session_state.score}. Start a new game to play again."
+        )
     else:
-        st.error("Game over. Start a new game to try again.")
+        st.error(
+            f"Game over! The secret was {st.session_state.secret}. "
+            f"Score: {st.session_state.score}. Start a new game to try again."
+        )
     st.stop()
 
 if submit:
@@ -137,20 +150,13 @@ if submit:
             )
 
             if outcome == "Win":
-                st.balloons()
+                st.session_state.show_balloons = True
                 st.session_state.status = "won"
-                st.success(
-                    f"You won! The secret was {st.session_state.secret}. "
-                    f"Final score: {st.session_state.score}"
-                )
             else:
                 if st.session_state.attempts >= attempt_limit:
                     st.session_state.status = "lost"
-                    st.error(
-                        f"Out of attempts! "
-                        f"The secret was {st.session_state.secret}. "
-                        f"Score: {st.session_state.score}"
-                    )
+
+            st.rerun()
 
 if show_hint and st.session_state.hint_message:
     hint_placeholder.warning(st.session_state.hint_message)
