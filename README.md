@@ -12,54 +12,75 @@ It wrote the code, ran away, and now the game is unplayable.
 ## 🛠️ Setup
 
 1. Install dependencies: `pip install -r requirements.txt`
-2. Run the broken app: `python -m streamlit run app.py`
-
-## 🕵️‍♂️ Your Mission
-
-1. **Play the game.** Open the "Developer Debug Info" tab in the app to see the secret number. Try to win.
-2. **Find the State Bug.** Why does the secret number change every time you click "Submit"? Ask ChatGPT: *"How do I keep a variable from resetting in Streamlit when I click a button?"*
-3. **Fix the Logic.** The hints ("Higher/Lower") are wrong. Fix them.
-4. **Refactor & Test.** - Move the logic into `logic_utils.py`.
-   - Run `pytest` in your terminal.
-   - Keep fixing until all tests pass!
+2. Run the fixed app: `python -m streamlit run app.py`
 
 ## 📝 Document Your Experience
 
-- [ ] Describe the game's purpose.
-The purpose of the game is to guess a randomly generated secret number using the hints provided by the application. After each guess, the game tells the player whether they should guess higher or lower until the correct number is found. The game also tracks progress and allows the player to start a new game after winning.
-- [ ] Detail which bugs you found.
-Incorrect Hint Logic
-The game displayed the wrong hint direction. When a guess was higher than the secret number, it showed "Go HIGHER" instead of "Go LOWER," and vice versa.
-New Game Button Not Resetting the Game
-Clicking the New Game button did not properly reset the game state. Previous guesses, scores, and win status remained, preventing a fresh game from starting correctly.
-Hint Display Bug
-When the "Show Hint" checkbox was enabled and a guess was submitted, the expected hint was not displayed to the user.
-- [ ] Explain what fixes you applied.
-Fixed Incorrect Hint Logic
-I corrected the comparison logic responsible for generating hints. Previously, when a guess was higher than the secret number, the game incorrectly displayed "Go HIGHER," and when a guess was lower, it displayed "Go LOWER." After updating the conditions, the game now provides the correct higher/lower guidance to the player.
-Verification
-I tested multiple guesses above and below the secret number and confirmed that the correct hint is displayed in each case. This resolved the misleading feedback issue and made the game playable as intended.
+### Game Purpose
+
+Glitchy Guesser is a number guessing game built with Streamlit. The player selects a difficulty level (Easy: 1–20, Normal: 1–100, Hard: 1–500), then tries to guess a randomly generated secret number within a limited number of attempts. After each guess the game shows a hint (higher or lower), tracks a score, and ends when the player wins or runs out of attempts.
+
+---
+
+### Bugs Found
+
+**Bug 1 — Inverted hint logic (`check_guess` in `logic_utils.py`)**
+The `check_guess` function had its comparison operators reversed. When `guess > secret` it returned `"Go HIGHER!"` and when `guess < secret` it returned `"Go LOWER!"` — the exact opposite of correct. The fix was swapping the messages so `guess > secret` returns `"Go LOWER!"` and `guess < secret` returns `"Go HIGHER!"`.
+
+**Bug 2 — Attempt counter started at 1 instead of 0**
+`st.session_state.attempts` was initialized to `1` in the starter code. This meant the very first guess was already counted as attempt 1 before the player did anything, giving the player one fewer attempt than the difficulty setting advertised. The fix was initializing `attempts` to `0`.
+
+**Bug 3 — New Game button did not reset game state**
+The New Game handler only reset `attempts` and regenerated the secret number. It did not clear `score`, `status`, or `history`. This meant a won or lost game stayed in a terminal state and the player could not start fresh. The fix was resetting all five session state keys: `attempts`, `score`, `status`, `history`, and `hint_message`.
+
+**Bug 4 — `parse_guess` accepted decimal numbers**
+The starter `parse_guess` converted decimals like `3.5` to integers via `int(float(raw))`, silently accepting an invalid input. The fix was checking for `"."` in the raw string before attempting conversion and returning an error message if found.
+
+**Bug 5 — Info banner always showed "between 1 and 100" regardless of difficulty**
+The info banner was hardcoded to `"Guess a number between 1 and 100"`. Switching to Hard (1–500) or Easy (1–20) still showed the wrong range. The fix was using the `low` and `high` values returned by `get_range_for_difficulty(difficulty)`.
+
+---
+
+### Fixes Applied
+
+| Bug | File Changed | What Changed | Why It Works |
+|-----|-------------|--------------|--------------|
+| Inverted hints | `logic_utils.py` | Swapped `"Go HIGHER!"` and `"Go LOWER!"` in `check_guess` | The comparison `guess > secret` now correctly maps to "go lower" |
+| Attempts off-by-one | `app.py` | `st.session_state.attempts` initialized to `0` (was `1`) | Attempt count now starts at zero so the first guess correctly counts as attempt 1 |
+| New Game not resetting | `app.py` | New Game handler resets `score`, `status`, `history`, `hint_message` in addition to `attempts` | All state is cleared so a fresh game starts from scratch |
+| Decimal inputs accepted | `logic_utils.py` | Added `if "." in raw: return False, None, "Please enter a whole number, not a decimal."` | Decimals are rejected before `int()` conversion, keeping guesses whole numbers only |
+| Wrong range in banner | `app.py` | Replaced hardcoded `"1 and 100"` with `f"{low} and {high}"` | Banner now reflects the actual range for the selected difficulty |
+
+---
 
 ## 📸 Demo Walkthrough
 
-Describe your fixed game in numbered steps so a reader can follow along without watching a video:
+1. Launch the app with `python -m streamlit run app.py`. The sidebar shows difficulty set to **Normal** (range 1–100, 8 attempts).
+2. The info banner reads: *"Guess a number between 1 and 100. Attempts left: 8"*
+3. User types `50` and clicks **Submit Guess**. The hint shows **📈 Go HIGHER!** — the secret is above 50.
+4. User types `75`. The hint shows **📉 Go LOWER!** — the secret is between 50 and 75. Attempts left: 6.
+5. User types `62`. The hint shows **📉 Go LOWER!** — secret is between 50 and 62. Attempts left: 5.
+6. User types `55`. The hint shows **📈 Go HIGHER!** — secret is between 55 and 62. Attempts left: 4.
+7. User types `59`. The hint shows **📈 Go HIGHER!** — secret is between 59 and 62. Attempts left: 3.
+8. User types `61`. Balloons appear and the success message reads: *"You won! The secret was 61. Final score: 50"*
+9. User clicks **New Game**. Score resets to 0, attempts reset to 8, a new secret is generated, and the game is ready to play again.
 
-1. <!-- Describe this step -->
-2. <!-- Describe this step -->
-3. <!-- Describe this step -->
-4. <!-- Describe this step -->
-5. <!-- Add more steps as needed -->
-
-**Screenshot** *(optional)*: <!-- Insert a screenshot of your fixed, winning game here -->
+---
 
 ## 🧪 Test Results
 
 ```
-# Paste your pytest output here, e.g.:
-# pytest tests/
-# ========================= X passed in 0.XXs =========================
+============================= test session starts =============================
+platform win32 -- Python 3.14.0, pytest-9.0.3, pluggy-1.6.0
+collected 3 items
+
+tests/test_game_logic.py::test_winning_guess PASSED                      [ 33%]
+tests/test_game_logic.py::test_guess_too_high PASSED                     [ 66%]
+tests/test_game_logic.py::test_guess_too_low PASSED                      [100%]
+
+============================== 3 passed in 0.06s ==============================
 ```
 
 ## 🚀 Stretch Features
 
-- [ ] [If you choose to complete Challenge 4, describe the Enhanced UI changes here — a screenshot is optional]
+- Enhanced UI: added emoji hints (📈 Go HIGHER! / 📉 Go LOWER!), a collapsible Developer Debug Info panel, difficulty-aware ranges displayed in the sidebar, and a score tracker that updates after every valid guess.
